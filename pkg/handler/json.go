@@ -19,7 +19,7 @@ func jsonResponse(w http.ResponseWriter, code int, payload interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	data, err := json.Marshal(payload)
 	if err != nil {
-		log.Printf("Error marshalling JSON: %s", err)
+		log.Printf("Error al serializar la respuesta: %v", err)
 		return
 	}
 	w.WriteHeader(code)
