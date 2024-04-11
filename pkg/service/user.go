@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/csalazar94/fit-chat-back/internal/db"
+	"github.com/csalazar94/fit-chat-back/pkg/password"
 	"github.com/google/uuid"
 )
 
@@ -17,22 +18,36 @@ type User struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type UserService struct {
+type CreateUserParams struct {
+	ID        uuid.UUID `json:"id"`
+	FullName  string    `json:"full_name"`
+	Email     string    `json:"email"`
+	Password  string    `json:"password"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
+type userService struct {
 	dbQueries *db.Queries
 }
 
-func NewUserService(dbQueries *db.Queries) *UserService {
-	return &UserService{dbQueries}
+func NewUserService(dbQueries *db.Queries) *userService {
+	return &userService{dbQueries}
 }
 
-func (userService *UserService) Create(context context.Context, params db.CreateUserParams) (user User, err error) {
+func (userService *userService) Create(context context.Context, params CreateUserParams) (user User, err error) {
+	encodedHash, err := password.GenerateHash(params.Password, nil, nil)
+	if err != nil {
+		log.Printf("Error al generar hash: %v", err)
+		return user, err
+	}
 	dbUser, err := userService.dbQueries.CreateUser(context, db.CreateUserParams{
-		ID:        params.ID,
-		FullName:  params.FullName,
-		Email:     params.Email,
-		Password:  params.Password,
-		CreatedAt: params.CreatedAt,
-		UpdatedAt: params.UpdatedAt,
+		ID:          params.ID,
+		FullName:    params.FullName,
+		Email:       params.Email,
+		EncodedHash: encodedHash,
+		CreatedAt:   params.CreatedAt,
+		UpdatedAt:   params.UpdatedAt,
 	})
 	if err != nil {
 		log.Println("Error al crear usuario: ", err)
@@ -47,7 +62,7 @@ func (userService *UserService) Create(context context.Context, params db.Create
 	}, err
 }
 
-func (userService *UserService) GetAll(context context.Context) (users []User, err error) {
+func (userService *userService) GetAll(context context.Context) (users []User, err error) {
 	dbUsers, err := userService.dbQueries.GetUsers(context)
 	if err != nil {
 		log.Println("Error al obtener usuarios: ", err)

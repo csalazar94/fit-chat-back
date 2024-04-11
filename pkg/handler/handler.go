@@ -17,6 +17,8 @@ func NewHandler(services *service.Service) *Handler {
 func (h Handler) GetRouter() *http.ServeMux {
 	router := http.NewServeMux()
 
-	router.Handle("/users/", h.getUserRouter())
+	router.Handle("/users/", http.StripPrefix("/users", h.getUserRouter()))
+	router.Handle("/auth/", http.StripPrefix("/auth", h.getAuthRouter()))
+
 	return router
 }

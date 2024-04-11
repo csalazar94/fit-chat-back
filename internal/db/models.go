@@ -35,10 +35,10 @@ type Message struct {
 }
 
 type User struct {
-	ID        uuid.UUID
-	FullName  string
-	Email     string
-	Password  string
-	CreatedAt time.Time
-	UpdatedAt time.Time
+	ID          uuid.UUID
+	FullName    string
+	Email       string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	EncodedHash string
 }

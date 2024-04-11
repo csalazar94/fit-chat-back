@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/csalazar94/fit-chat-back/internal/db"
+	"github.com/csalazar94/fit-chat-back/pkg/service"
 	"github.com/google/uuid"
 )
 
@@ -31,7 +31,7 @@ func (h *Handler) createUser(w http.ResponseWriter, r *http.Request) {
 		errorResponse(w, http.StatusBadRequest, "Error al decodificar el cuerpo de la petición")
 		return
 	}
-	user, err := h.services.UserService.Create(r.Context(), db.CreateUserParams{
+	user, err := h.services.UserService.Create(r.Context(), service.CreateUserParams{
 		ID:        uuid.New(),
 		FullName:  body.FullName,
 		Email:     body.Email,
