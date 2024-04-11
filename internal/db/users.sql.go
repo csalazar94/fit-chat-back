@@ -22,7 +22,7 @@ VALUES (
     $5,
     $6
 )
-RETURNING id, full_name, email, created_at, updated_at, encoded_hash
+RETURNING id, full_name, email, encoded_hash, created_at, updated_at
 `
 
 type CreateUserParams struct {
@@ -48,15 +48,15 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.ID,
 		&i.FullName,
 		&i.Email,
+		&i.EncodedHash,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.EncodedHash,
 	)
 	return i, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, full_name, email, created_at, updated_at, encoded_hash FROM users WHERE email = $1
+SELECT id, full_name, email, encoded_hash, created_at, updated_at FROM users WHERE email = $1
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error) {
@@ -66,15 +66,15 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.ID,
 		&i.FullName,
 		&i.Email,
+		&i.EncodedHash,
 		&i.CreatedAt,
 		&i.UpdatedAt,
-		&i.EncodedHash,
 	)
 	return i, err
 }
 
 const getUsers = `-- name: GetUsers :many
-SELECT id, full_name, email, created_at, updated_at, encoded_hash FROM users
+SELECT id, full_name, email, encoded_hash, created_at, updated_at FROM users
 `
 
 func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
@@ -90,9 +90,9 @@ func (q *Queries) GetUsers(ctx context.Context) ([]User, error) {
 			&i.ID,
 			&i.FullName,
 			&i.Email,
+			&i.EncodedHash,
 			&i.CreatedAt,
 			&i.UpdatedAt,
-			&i.EncodedHash,
 		); err != nil {
 			return nil, err
 		}

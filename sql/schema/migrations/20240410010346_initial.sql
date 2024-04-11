@@ -4,7 +4,7 @@ CREATE TABLE users (
     id UUID PRIMARY KEY,
     full_name TEXT NOT NULL,
     email TEXT NOT NULL UNIQUE,
-    password TEXT NOT NULL,
+    encoded_hash TEXT NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL
 );
@@ -18,7 +18,7 @@ CREATE TABLE chats (
 );
 
 CREATE TABLE author_roles (
-    id UUID PRIMARY KEY,
+    id SERIAL PRIMARY KEY,
     name TEXT,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL
@@ -26,7 +26,7 @@ CREATE TABLE author_roles (
 
 CREATE TABLE messages (
     id UUID PRIMARY KEY,
-    author_role_id UUID NOT NULL REFERENCES author_roles(id) ON DELETE CASCADE,
+    author_role_id SERIAL NOT NULL REFERENCES author_roles(id) ON DELETE CASCADE,
     content TEXT NOT NULL,
     created_at TIMESTAMP NOT NULL,
     updated_at TIMESTAMP NOT NULL

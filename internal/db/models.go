@@ -12,7 +12,7 @@ import (
 )
 
 type AuthorRole struct {
-	ID        uuid.UUID
+	ID        int32
 	Name      sql.NullString
 	CreatedAt time.Time
 	UpdatedAt time.Time
@@ -28,7 +28,7 @@ type Chat struct {
 
 type Message struct {
 	ID           uuid.UUID
-	AuthorRoleID uuid.UUID
+	AuthorRoleID int32
 	Content      string
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
@@ -38,7 +38,7 @@ type User struct {
 	ID          uuid.UUID
 	FullName    string
 	Email       string
+	EncodedHash string
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
-	EncodedHash string
 }
