@@ -27,7 +27,11 @@ func (h *UserHandler) getUsers(w http.ResponseWriter, r *http.Request) {
 		errorResponse(w, http.StatusInternalServerError, "Error al obtener los usuarios")
 		return
 	}
-	jsonResponse(w, http.StatusOK, users)
+	if users != nil {
+		jsonResponse(w, http.StatusOK, users)
+		return
+	}
+	jsonResponse(w, http.StatusOK, []service.User{})
 }
 
 func (h *UserHandler) createUser(w http.ResponseWriter, r *http.Request) {

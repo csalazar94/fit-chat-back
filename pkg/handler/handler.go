@@ -7,7 +7,7 @@ import (
 )
 
 type Handler struct {
-	Router *http.ServeMux
+	Router http.Handler
 }
 
 func NewHandler(services *service.Service) *Handler {
@@ -20,6 +20,6 @@ func NewHandler(services *service.Service) *Handler {
 	router.Handle("/auth/", http.StripPrefix("/auth", authRouter))
 
 	return &Handler{
-		Router: router,
+		Router: LogRequestMiddleware(router),
 	}
 }

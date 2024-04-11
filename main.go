@@ -15,6 +15,7 @@ func main() {
 	services := service.NewService(config.dbQueries)
 	v1Handler := handler.NewHandler(services)
 	router := http.NewServeMux()
+
 	router.Handle("/v1/", http.StripPrefix("/v1", v1Handler.Router))
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%s", config.port),

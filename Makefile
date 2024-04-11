@@ -17,3 +17,6 @@ db\:reset:
 	@goose -dir ${GOOSE_MIGRATION_DIR} ${GOOSE_DRIVER} ${GOOSE_DBSTRING} reset
 	@make db:migrate:up && make db:seed:up
 	@sqlc generate
+
+app\:run:
+	@go build && ./fit-chat-back
