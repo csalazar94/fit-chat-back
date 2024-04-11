@@ -11,18 +11,24 @@ type iUserService interface {
 	GetAll(context.Context) ([]User, error)
 }
 
+type iMessageService interface {
+	Create(context.Context, CreateMessageParams) (Message, error)
+}
+
 type iAuthService interface {
 	Login(context.Context, string, string) (bool, error)
 }
 
 type Service struct {
-	UserService iUserService
-	AuthService iAuthService
+	UserService    iUserService
+	AuthService    iAuthService
+	MessageService iMessageService
 }
 
 func NewService(dbQueries *db.Queries) *Service {
 	return &Service{
-		UserService: NewUserService(dbQueries),
-		AuthService: NewAuthService(dbQueries),
+		UserService:    NewUserService(dbQueries),
+		AuthService:    NewAuthService(dbQueries),
+		MessageService: NewMessageService(dbQueries),
 	}
 }

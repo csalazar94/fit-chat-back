@@ -26,6 +26,7 @@ CREATE TABLE author_roles (
 
 CREATE TABLE messages (
     id UUID PRIMARY KEY,
+    chat_id UUID NOT NULL REFERENCES chats(id) ON DELETE CASCADE,
     author_role_id SERIAL NOT NULL REFERENCES author_roles(id) ON DELETE CASCADE,
     content TEXT NOT NULL,
     created_at TIMESTAMP NOT NULL,
@@ -35,8 +36,8 @@ CREATE TABLE messages (
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE chats;
-DROP TABLE users;
 DROP TABLE messages;
 DROP TABLE author_roles;
+DROP TABLE chats;
+DROP TABLE users;
 -- +goose StatementEnd

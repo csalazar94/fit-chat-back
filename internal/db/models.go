@@ -28,6 +28,7 @@ type Chat struct {
 
 type Message struct {
 	ID           uuid.UUID
+	ChatID       uuid.UUID
 	AuthorRoleID int32
 	Content      string
 	CreatedAt    time.Time
