@@ -3,9 +3,22 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+
+	"github.com/csalazar94/fit-chat-back/pkg/service"
 )
 
-func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
+type AuthHandler struct {
+	services *service.Service
+}
+
+func NewAuthRouter(services *service.Service) *http.ServeMux {
+	router := http.NewServeMux()
+	authHandler := &AuthHandler{services}
+	router.HandleFunc("POST /login/", authHandler.login)
+	return router
+}
+
+func (h *AuthHandler) login(w http.ResponseWriter, r *http.Request) {
 	type bodySchema struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
@@ -23,10 +36,4 @@ func (h *Handler) login(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	jsonResponse(w, http.StatusOK, ok)
-}
-
-func (h *Handler) getAuthRouter() *http.ServeMux {
-	router := http.NewServeMux()
-	router.HandleFunc("POST /login/", h.login)
-	return router
 }

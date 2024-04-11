@@ -7,18 +7,19 @@ import (
 )
 
 type Handler struct {
-	services *service.Service
+	Router *http.ServeMux
 }
 
 func NewHandler(services *service.Service) *Handler {
-	return &Handler{services}
-}
-
-func (h Handler) GetRouter() *http.ServeMux {
 	router := http.NewServeMux()
 
-	router.Handle("/users/", http.StripPrefix("/users", h.getUserRouter()))
-	router.Handle("/auth/", http.StripPrefix("/auth", h.getAuthRouter()))
+	userRouter := NewUserRouter(services)
+	router.Handle("/users/", http.StripPrefix("/users", userRouter))
 
-	return router
+	authRouter := NewAuthRouter(services)
+	router.Handle("/auth/", http.StripPrefix("/auth", authRouter))
+
+	return &Handler{
+		Router: router,
+	}
 }

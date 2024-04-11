@@ -9,7 +9,19 @@ import (
 	"github.com/google/uuid"
 )
 
-func (h *Handler) getUsers(w http.ResponseWriter, r *http.Request) {
+type UserHandler struct {
+	services *service.Service
+}
+
+func NewUserRouter(services *service.Service) *http.ServeMux {
+	router := http.NewServeMux()
+	userHandler := &UserHandler{services}
+	router.HandleFunc("GET /", userHandler.getUsers)
+	router.HandleFunc("POST /", userHandler.createUser)
+	return router
+}
+
+func (h *UserHandler) getUsers(w http.ResponseWriter, r *http.Request) {
 	users, err := h.services.UserService.GetAll(r.Context())
 	if err != nil {
 		errorResponse(w, http.StatusInternalServerError, "Error al obtener los usuarios")
@@ -18,7 +30,7 @@ func (h *Handler) getUsers(w http.ResponseWriter, r *http.Request) {
 	jsonResponse(w, http.StatusOK, users)
 }
 
-func (h *Handler) createUser(w http.ResponseWriter, r *http.Request) {
+func (h *UserHandler) createUser(w http.ResponseWriter, r *http.Request) {
 	type bodySchema struct {
 		FullName string `json:"full_name"`
 		Email    string `json:"email"`
@@ -44,11 +56,4 @@ func (h *Handler) createUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	jsonResponse(w, http.StatusOK, user)
-}
-
-func (h *Handler) getUserRouter() *http.ServeMux {
-	router := http.NewServeMux()
-	router.HandleFunc("GET /", h.getUsers)
-	router.HandleFunc("POST /", h.createUser)
-	return router
 }
