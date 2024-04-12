@@ -10,7 +10,7 @@ type Handler struct {
 	Router http.Handler
 }
 
-func NewHandler(services *service.Service) *Handler {
+func NewHandler(services *service.Services) *Handler {
 	router := http.NewServeMux()
 
 	router.HandleFunc("/ws/", serveWs)
@@ -23,6 +23,7 @@ func NewHandler(services *service.Service) *Handler {
 
 	messageRouter := NewMessageRouter(services)
 	router.Handle("/messages/", http.StripPrefix("/messages", messageRouter))
+
 	return &Handler{
 		Router: LogRequestMiddleware(router),
 	}

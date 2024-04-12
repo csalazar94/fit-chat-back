@@ -10,10 +10,10 @@ import (
 )
 
 type MessageHandler struct {
-	services *service.Service
+	services *service.Services
 }
 
-func NewMessageRouter(services *service.Service) *http.ServeMux {
+func NewMessageRouter(services *service.Services) *http.ServeMux {
 	router := http.NewServeMux()
 	messageHandler := &MessageHandler{services}
 	router.HandleFunc("POST /", messageHandler.createMessage)

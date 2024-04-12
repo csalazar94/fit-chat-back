@@ -6,27 +6,27 @@ import (
 	"github.com/csalazar94/fit-chat-back/internal/db"
 )
 
-type iUserService interface {
+type IUserService interface {
 	Create(context.Context, CreateUserParams) (User, error)
 	GetAll(context.Context) ([]User, error)
 }
 
-type iMessageService interface {
+type IMessageService interface {
 	Create(context.Context, CreateMessageParams) (Message, error)
 }
 
-type iAuthService interface {
+type IAuthService interface {
 	Login(context.Context, string, string) (bool, error)
 }
 
-type Service struct {
-	UserService    iUserService
-	AuthService    iAuthService
-	MessageService iMessageService
+type Services struct {
+	UserService    IUserService
+	AuthService    IAuthService
+	MessageService IMessageService
 }
 
-func NewService(dbQueries *db.Queries) *Service {
-	return &Service{
+func NewServices(dbQueries *db.Queries) *Services {
+	return &Services{
 		UserService:    NewUserService(dbQueries),
 		AuthService:    NewAuthService(dbQueries),
 		MessageService: NewMessageService(dbQueries),

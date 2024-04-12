@@ -10,10 +10,10 @@ import (
 )
 
 type UserHandler struct {
-	services *service.Service
+	services *service.Services
 }
 
-func NewUserRouter(services *service.Service) *http.ServeMux {
+func NewUserRouter(services *service.Services) *http.ServeMux {
 	router := http.NewServeMux()
 	userHandler := &UserHandler{services}
 	router.HandleFunc("GET /", userHandler.getUsers)

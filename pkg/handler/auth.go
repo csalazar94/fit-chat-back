@@ -8,10 +8,10 @@ import (
 )
 
 type AuthHandler struct {
-	services *service.Service
+	services *service.Services
 }
 
-func NewAuthRouter(services *service.Service) *http.ServeMux {
+func NewAuthRouter(services *service.Services) *http.ServeMux {
 	router := http.NewServeMux()
 	authHandler := &AuthHandler{services}
 	router.HandleFunc("POST /login/", authHandler.login)
