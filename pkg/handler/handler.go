@@ -13,6 +13,8 @@ type Handler struct {
 func NewHandler(services *service.Service) *Handler {
 	router := http.NewServeMux()
 
+	router.HandleFunc("/ws/", serveWs)
+
 	userRouter := NewUserRouter(services)
 	router.Handle("/users/", http.StripPrefix("/users", userRouter))
 

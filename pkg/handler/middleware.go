@@ -1,7 +1,10 @@
 package handler
 
 import (
+	"bufio"
+	"errors"
 	"log"
+	"net"
 	"net/http"
 	"time"
 )
@@ -18,6 +21,14 @@ func (r *LogRecord) Write(p []byte) (int, error) {
 func (r *LogRecord) WriteHeader(status int) {
 	r.status = status
 	r.ResponseWriter.WriteHeader(status)
+}
+
+func (w *LogRecord) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	h, ok := w.ResponseWriter.(http.Hijacker)
+	if !ok {
+		return nil, nil, errors.New("hijack not supported")
+	}
+	return h.Hijack()
 }
 
 func LogRequestMiddleware(next http.Handler) http.Handler {
