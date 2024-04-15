@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/csalazar94/fit-chat-back/internal/db"
@@ -29,6 +28,10 @@ type CreateMessageParams struct {
 	UpdatedAt    time.Time `json:"updated_at"`
 }
 
+type GetAllByChatIDParams struct {
+	ChatID uuid.UUID `json:"chat_id"`
+}
+
 type messageService struct {
 	dbQueries    *db.Queries
 	openaiClient *openai.Client
@@ -38,8 +41,26 @@ func NewMessageService(dbQueries *db.Queries, openaiClient *openai.Client) *mess
 	return &messageService{dbQueries, openaiClient}
 }
 
-func (messageService *messageService) Create(context context.Context, params CreateMessageParams) (message Message, err error) {
-	dbMessage, err := messageService.dbQueries.CreateMessage(context, db.CreateMessageParams{
+func (messageService *messageService) GetAllByChatID(ctx context.Context, params GetAllByChatIDParams) (messages []Message, err error) {
+	dbMessages, err := messageService.dbQueries.GetMessagesByChatId(ctx, params.ChatID)
+	if err != nil {
+		return messages, fmt.Errorf("error al obtener mensajes por id de chat: %v", err)
+	}
+	for _, dbMessage := range dbMessages {
+		messages = append(messages, Message{
+			ID:           dbMessage.ID,
+			ChatID:       dbMessage.ChatID,
+			AuthorRoleID: dbMessage.AuthorRoleID,
+			Content:      dbMessage.Content,
+			CreatedAt:    dbMessage.CreatedAt,
+			UpdatedAt:    dbMessage.UpdatedAt,
+		})
+	}
+	return messages, nil
+}
+
+func (messageService *messageService) Create(ctx context.Context, params CreateMessageParams) (message Message, err error) {
+	dbMessage, err := messageService.dbQueries.CreateMessage(ctx, db.CreateMessageParams{
 		ID:           params.ID,
 		ChatID:       params.ChatID,
 		AuthorRoleID: params.AuthorRoleID,
@@ -48,8 +69,7 @@ func (messageService *messageService) Create(context context.Context, params Cre
 		UpdatedAt:    params.UpdatedAt,
 	})
 	if err != nil {
-		log.Printf("Error al crear mensaje: %v", err)
-		return message, err
+		return message, fmt.Errorf("error al crear mensaje: %v", err)
 	}
 	return Message{
 		ID:           dbMessage.ID,

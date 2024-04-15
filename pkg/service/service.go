@@ -16,6 +16,7 @@ type IUserService interface {
 type IMessageService interface {
 	Create(context.Context, CreateMessageParams) (Message, error)
 	AIMessageStream(context.Context, uuid.UUID) (*openai.ChatCompletionStream, error)
+	GetAllByChatID(context.Context, GetAllByChatIDParams) ([]Message, error)
 }
 
 type IAuthService interface {
