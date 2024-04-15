@@ -24,6 +24,7 @@ type IAuthService interface {
 }
 
 type IChatService interface {
+	Create(context.Context, CreateChatParams) (Chat, error)
 	GetAll(context.Context) ([]Chat, error)
 }
 

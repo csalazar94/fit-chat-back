@@ -7,7 +7,50 @@ package db
 
 import (
 	"context"
+	"database/sql"
+	"time"
+
+	"github.com/google/uuid"
 )
+
+const createChat = `-- name: CreateChat :one
+INSERT INTO chats (id, user_id, title, created_at, updated_at)
+VALUES (
+    $1,
+    $2,
+    $3,
+    $4,
+    $5
+)
+RETURNING id, user_id, title, created_at, updated_at
+`
+
+type CreateChatParams struct {
+	ID        uuid.UUID
+	UserID    uuid.UUID
+	Title     sql.NullString
+	CreatedAt time.Time
+	UpdatedAt time.Time
+}
+
+func (q *Queries) CreateChat(ctx context.Context, arg CreateChatParams) (Chat, error) {
+	row := q.db.QueryRowContext(ctx, createChat,
+		arg.ID,
+		arg.UserID,
+		arg.Title,
+		arg.CreatedAt,
+		arg.UpdatedAt,
+	)
+	var i Chat
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Title,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
 
 const getChats = `-- name: GetChats :many
 SELECT id, user_id, title, created_at, updated_at FROM chats
