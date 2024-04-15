@@ -7,11 +7,13 @@ import (
 
 	"github.com/csalazar94/fit-chat-back/internal/db"
 	"github.com/joho/godotenv"
+	"github.com/sashabaranov/go-openai"
 )
 
 type config struct {
-	port      string
-	dbQueries *db.Queries
+	port         string
+	dbQueries    *db.Queries
+	openaiClient *openai.Client
 }
 
 func loadConfig() config {
@@ -35,8 +37,15 @@ func loadConfig() config {
 	}
 	queries := db.New(conn)
 
+	openaiApiKey := os.Getenv("OPENAI_API_KEY")
+	if openaiApiKey == "" {
+		log.Fatal("Error al cargar la variable de entorno 'OPENAI_API_KEY'")
+	}
+	openaiClient := openai.NewClient(openaiApiKey)
+
 	return config{
-		port:      port,
-		dbQueries: queries,
+		port:         port,
+		dbQueries:    queries,
+		openaiClient: openaiClient,
 	}
 }

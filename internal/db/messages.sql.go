@@ -54,3 +54,37 @@ func (q *Queries) CreateMessage(ctx context.Context, arg CreateMessageParams) (M
 	)
 	return i, err
 }
+
+const getMessagesByChatId = `-- name: GetMessagesByChatId :many
+SELECT id, chat_id, author_role_id, content, created_at, updated_at FROM messages WHERE chat_id = $1
+`
+
+func (q *Queries) GetMessagesByChatId(ctx context.Context, chatID uuid.UUID) ([]Message, error) {
+	rows, err := q.db.QueryContext(ctx, getMessagesByChatId, chatID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Message
+	for rows.Next() {
+		var i Message
+		if err := rows.Scan(
+			&i.ID,
+			&i.ChatID,
+			&i.AuthorRoleID,
+			&i.Content,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

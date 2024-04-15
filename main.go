@@ -24,7 +24,7 @@ func main() {
 }
 
 func run(config config) error {
-	services := service.NewServices(config.dbQueries)
+	services := service.NewServices(config.dbQueries, config.openaiClient)
 	v1Handler := handler.NewHandler(services)
 	router := http.NewServeMux()
 

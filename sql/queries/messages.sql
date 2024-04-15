@@ -9,3 +9,6 @@ VALUES (
     $6
 )
 RETURNING *;
+
+-- name: GetMessagesByChatId :many
+SELECT * FROM messages WHERE chat_id = $1;

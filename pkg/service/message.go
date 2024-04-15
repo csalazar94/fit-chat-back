@@ -2,11 +2,13 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 
 	"github.com/csalazar94/fit-chat-back/internal/db"
 	"github.com/google/uuid"
+	"github.com/sashabaranov/go-openai"
 )
 
 type Message struct {
@@ -28,11 +30,12 @@ type CreateMessageParams struct {
 }
 
 type messageService struct {
-	dbQueries *db.Queries
+	dbQueries    *db.Queries
+	openaiClient *openai.Client
 }
 
-func NewMessageService(dbQueries *db.Queries) *messageService {
-	return &messageService{dbQueries}
+func NewMessageService(dbQueries *db.Queries, openaiClient *openai.Client) *messageService {
+	return &messageService{dbQueries, openaiClient}
 }
 
 func (messageService *messageService) Create(context context.Context, params CreateMessageParams) (message Message, err error) {
@@ -56,4 +59,42 @@ func (messageService *messageService) Create(context context.Context, params Cre
 		CreatedAt:    dbMessage.CreatedAt,
 		UpdatedAt:    dbMessage.UpdatedAt,
 	}, nil
+}
+
+const (
+	SystemRoleId    = 1
+	AssistantRoleId = 2
+	ToolRoleId      = 3
+	UserRoleId      = 4
+)
+
+func (messageService *messageService) AIMessageStream(ctx context.Context, chatId uuid.UUID) (*openai.ChatCompletionStream, error) {
+	roleMap := map[int32]string{
+		SystemRoleId:    "system",
+		AssistantRoleId: "assistant",
+		ToolRoleId:      "tool",
+		UserRoleId:      "user",
+	}
+
+	dbMessages, err := messageService.dbQueries.GetMessagesByChatId(ctx, chatId)
+	if err != nil {
+		return nil, fmt.Errorf("error al obtener mensajes por id de chat: %v", err)
+	}
+	var messages []openai.ChatCompletionMessage
+	for _, dbMessage := range dbMessages {
+		messages = append(messages, openai.ChatCompletionMessage{
+			Role:    roleMap[dbMessage.AuthorRoleID],
+			Content: dbMessage.Content,
+		})
+	}
+	req := openai.ChatCompletionRequest{
+		Model:    openai.GPT3Dot5Turbo0125,
+		Messages: messages,
+		Stream:   true,
+	}
+	stream, err := messageService.openaiClient.CreateChatCompletionStream(ctx, req)
+	if err != nil {
+		return stream, fmt.Errorf("error al crear stream de mensajes: %v", err)
+	}
+	return stream, err
 }
