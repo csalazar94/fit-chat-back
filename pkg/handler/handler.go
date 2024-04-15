@@ -25,6 +25,9 @@ func NewHandler(services *service.Services) *Handler {
 	messageRouter := NewMessageRouter(services)
 	router.Handle("/messages/", http.StripPrefix("/messages", messageRouter))
 
+	chatRouter := NewChatRouter(services)
+	router.Handle("/chats/", http.StripPrefix("/chats", chatRouter))
+
 	return &Handler{
 		Router: LogRequestMiddleware(router),
 	}

@@ -23,10 +23,15 @@ type IAuthService interface {
 	Login(context.Context, string, string) (bool, error)
 }
 
+type IChatService interface {
+	GetAll(context.Context) ([]Chat, error)
+}
+
 type Services struct {
 	UserService    IUserService
 	AuthService    IAuthService
 	MessageService IMessageService
+	ChatService    IChatService
 }
 
 func NewServices(dbQueries *db.Queries, openaiClient *openai.Client) *Services {
@@ -34,5 +39,6 @@ func NewServices(dbQueries *db.Queries, openaiClient *openai.Client) *Services {
 		UserService:    NewUserService(dbQueries),
 		AuthService:    NewAuthService(dbQueries),
 		MessageService: NewMessageService(dbQueries, openaiClient),
+		ChatService:    NewChatService(dbQueries),
 	}
 }
