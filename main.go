@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,34 +10,47 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/csalazar94/fit-chat-back/internal/db"
+	"github.com/csalazar94/fit-chat-back/pkg/config"
 	"github.com/csalazar94/fit-chat-back/pkg/handler"
 	"github.com/csalazar94/fit-chat-back/pkg/service"
 	_ "github.com/lib/pq"
+	"github.com/sashabaranov/go-openai"
 )
 
 func main() {
-	config := loadConfig()
-
-	err := run(config)
+	err := run()
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func run(config config) error {
-	services := service.NewServices(config.dbQueries, config.openaiClient)
-	v1Handler := handler.NewHandler(services)
-	router := http.NewServeMux()
+func run() error {
+	cfg := config.NewConfig()
 
+	conn, err := sql.Open("postgres", cfg.DbURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+	queries := db.New(conn)
+
+	openaiClient := openai.NewClient(cfg.OpenaiApiKey)
+
+	services := service.NewServices(queries, openaiClient)
+
+	v1Handler := handler.NewHandler(services)
+
+	router := http.NewServeMux()
 	router.Handle("/v1/", http.StripPrefix("/v1", v1Handler.Router))
+
 	server := &http.Server{
-		Addr:    fmt.Sprintf(":%s", config.port),
+		Addr:    fmt.Sprintf(":%s", cfg.Port),
 		Handler: router,
 	}
 
 	errc := make(chan error, 1)
 	go func() {
-		fmt.Printf("Servidor escuchando en el puerto %s\n", config.port)
+		fmt.Printf("Servidor escuchando en el puerto %s\n", cfg.Port)
 		errc <- server.ListenAndServe()
 	}()
 
